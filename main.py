@@ -34,6 +34,23 @@ def prediction_to_str(seq):
 
     return seq
 
+def beam_prediction_to_str(seq):
+    if not isinstance(seq, list):
+        seq = seq.tolist()
+
+    # The beam search might return a sequence with repeated tags and blanks
+    # First, remove consecutive duplicates
+    seq = [s[0] for s in groupby(seq)]
+
+    # Then remove blanks (assuming 0 is the index for blank)
+    seq = [s for s in seq if s != 0]
+
+    # Convert the sequence of indices to a string
+    # Assuming idx_to_tag is a dictionary mapping tag indices to characters
+    seq_str = "".join(idx_to_tag[c] for c in seq)
+
+    return seq_str
+
 
 def get_training_sample(*args, **kwargs):
     _, spec, y = generate_sample(*args, **kwargs)
@@ -107,7 +124,7 @@ if __name__ == "__main__":
     batch_size = 64
     spectrogram_size = generate_sample()[1].shape[0]
 
-    device = torch.device("cuda")
+    device = torch.device("cpu")
     writer = SummaryWriter()
 
     # Set up trainer & evaluator
