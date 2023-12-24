@@ -107,7 +107,7 @@ if __name__ == "__main__":
     noise_power = random.randrange(0, 200)
     amplitude = random.randrange(10, 150)
 
-    s = "HELLO, WORLD"
+    s = "KF0MLY"
     samples, spec, y = generate_sample(length, pitch, wpm, noise_power, amplitude, s)
     samples = samples.astype(np.float32)
     write("morse.wav", SAMPLE_FREQ, samples)

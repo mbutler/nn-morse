@@ -11,30 +11,6 @@ from scipy import signal
 from main import Net, num_tags, prediction_to_str, beam_prediction_to_str
 from morse import ALPHABET, SAMPLE_FREQ, get_spectrogram
 
-def beam_search(y_pred, beam_width=3, max_len=50):
-    sequences = [([], 0)]  # each sequence is a tuple (tag sequence, score)
-
-    for t in range(y_pred.shape[0]):
-        all_candidates = []
-        for seq, score in sequences:
-            if len(seq) > 0 and seq[-1] == 0:  # if the last tag is <blank>, consider sequence complete
-                all_candidates.append((seq, score))
-                continue
-
-            for tag in range(y_pred.shape[1]):
-                candidate_seq = seq + [tag]
-                candidate_score = score - np.log(y_pred[t, tag])  # using negative log likelihood
-                all_candidates.append((candidate_seq, candidate_score))
-
-        # sort candidates by score and select top beam_width
-        ordered = sorted(all_candidates, key=lambda tup: tup[1])
-        sequences = ordered[:beam_width]
-
-        if all(seq[-1] == 0 for seq, _ in sequences):  # all sequences ended
-            break
-
-    return sequences[0][0]  # return the sequence with the highest score
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model")
@@ -42,6 +18,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     rate, data = scipy.io.wavfile.read(args.input)
+    print(type(data))
 
     # Resample and rescale
     length = len(data) / rate
